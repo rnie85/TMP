@@ -1,0 +1,10 @@
+# Ignore everything
+/*
+
+!.gitignore
+!.projects/
+!.clang-format
+!README.md
+!good2know.md
+!source_me.zsh
+!source_me.sh

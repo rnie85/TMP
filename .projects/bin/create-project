@@ -1,0 +1,48 @@
+#!/bin/bash
+set -e
+
+. ${TMP_PROJECTS}/.projects/lib/utils.sh
+
+create-project()
+{
+    local project_name="$1"
+    [[ "${project_name}" == "" ]] && read -p "What is the name of the project? " project_name
+    [[ "${project_name}" == "" ]] && __echo_err "ERROR: invalid name, name is empty" && return 1
+    [[ "${#project_name}" -lt 2 ]] && __echo_err "ERROR: invalid name, name is too short" && return 1
+
+    local project_path="${TMP_PROJECTS}/${project_name}"
+    if [[ -d "${project_path}" ]]; then
+        __echo_err "ERROR: Project \"${project_name}\" already exists" && return 1
+    fi
+
+    echo "Creating project ${project_name}"
+
+    local folders=("code" "notes" "doc" ".env")
+    for folder in ${folders[@]}; do
+        echo "* create folder: ${folder}"
+        mkdir -p "${project_path}/${folder}"
+    done
+
+    local files=("README.md" "contacts" "bookmarks")
+    for file in ${files[@]}; do
+        echo "* create file: ${file}"
+        touch "${project_path}/${file}"
+    done
+
+    __cp_template_files "${project_path}"
+    echo
+}
+
+__cp_template_files()
+{
+    local project_path="$1"
+    local template_path="${TMP_PROJECTS}/.projects/templates"
+    echo "* Copy template files"
+    cp -v "${template_path}/envrc" "${project_path}"
+    cp -v "${template_path}/main.sh" "${project_path}/.env/"
+    cp -v "${template_path}/exports.sh" "${project_path}/.env/"
+    cp -v "${template_path}/aliases.sh" "${project_path}/.env/"
+    cp -v "${template_path}/functions.sh" "${project_path}/.env/"
+}
+
+create-project $@

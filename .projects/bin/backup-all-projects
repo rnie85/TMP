@@ -1,0 +1,25 @@
+#!/bin/bash
+set -e
+
+. ${TMP_PROJECTS}/.projects/lib/utils.sh
+
+backup-all-projects()
+{
+    echo "Archive all projects"
+    local date="$(date +"%Y%m%d")"
+    local time="$(date +"%H%M%S")"
+    local backup_dir="${TMP_PROJECTS_BACKUP}/${date}"
+    mkdir -p "${backup_dir}"
+    [[ $? -ne 0 ]] && __echo_err "Cannot create directory" && return 1
+
+    if [[ ! -d "$TMP_PROJECTS" ]]; then
+        __echo_err "ERROR: \"$TMP_PROJECTS\" does not exist!" && return 1
+    fi
+
+    __tar "${backup_dir}/all_projects_${time}.tar.gz" "${TMP_PROJECTS}/.." "projects"
+    echo
+    echo "Done archiving all projects"
+    echo "${backup_dir}/all_projects_${time}.tar.gz"
+}
+
+backup-all-projects $@
