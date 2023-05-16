@@ -1,0 +1,30 @@
+#!/bin/bash
+set -e
+
+. ${TMP_PROJECTS}/.projects/lib/utils.sh
+
+backup-project()
+{
+    echo "Archive project"
+    local date="$(date +"%Y%m%d")"
+    local time="$(date +"%H%M%S")"
+    local backup_dir="${TMP_PROJECTS_BACKUP}/${date}"
+    mkdir -p "${backup_dir}"
+    [[ $? -ne 0 ]] && __echo_err "Cannot create directory" && return 1
+
+    local project_name="$1"
+    if [[ "${project_name}" == "" ]]; then
+        project_name=$(__list_projects_name) || return $?
+    fi
+
+    if [[ ! -d "${TMP_PROJECTS}/${project_name}" ]]; then
+        __echo_err "ERROR: invalid project \"${TMP_PROJECTS}/${project_name}\"" && return 1
+    fi
+
+    __tar "${backup_dir}/project_${project_name}_${time}.tar.gz" "${TMP_PROJECTS}" "${project_name}"
+    echo
+    echo "Done archiving project ${project_name}"
+    echo "${backup_dir}/project_${project_name}_${time}.tar.gz"
+}
+
+backup-project $@

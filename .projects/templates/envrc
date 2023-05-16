@@ -1,0 +1,23 @@
+#------------------------------------//
+# envrc
+#------------------------------------//
+
+if [ ! -e "./envrc" ]; then
+    echo "ERROR: Current path is not a project" >&2
+    return 1
+fi
+
+if [ ! -d "./.env" ]; then
+    echo "ERROR: Current path is not a project" >&2
+    return 1
+fi
+
+export PROJECT_PATH=${PWD}
+export PROJECT_NAME=${PWD##*/}
+
+. .env/main.sh
+
+# Source environment of project
+# . /code/[REPO_NAME]/.envrc
+
+# vim: syn=sh

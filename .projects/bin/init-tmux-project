@@ -1,0 +1,89 @@
+#!/bin/bash
+set -e
+
+. ${TMP_PROJECTS}/.projects/lib/utils.sh
+
+init-tmux-project()
+{
+    local name="$1"
+    if [[ "${name}" == "" ]]; then
+        name=$(__list_projects_name) || return $?
+    fi
+
+    if [[ ! -d "${TMP_PROJECTS}/${name}" ]]; then
+        __echo_err "ERROR: invalid project \"${TMP_PROJECTS}/${name}\"" && return 1
+    fi
+
+    local session_name="${name}"
+    echo "---------- $session_name ----------"
+
+    local session_running="$(tmux list-sessions | grep $session_name)"
+    local active_sessions="/tmp/active_sessions_${name}"
+    if [[ "$session_running" != "" ]]; then
+        echo "Session already exists"
+
+        select choice in attach share new; do break; done
+        case "${choice}" in
+            attach)
+	        # Change to only list tmux sessions (if there are any) with "${session_name}_${current_session_count}" NOT ALL running sessions
+                #local session_name=$(__list_tmux_sessions)
+                #[[ "${session_name}" == "quit" ]] && return 0
+                echo "attaching to $session_name"
+                ;;
+            share)
+	        # Change to only list tmux sessions (if there are any) with "${session_name}_${current_session_count}" NOT ALL running sessions
+                #local session_name=$(__list_tmux_sessions)
+                #[[ "${session_name}" == "quit" ]] && return 0
+                echo "sharing $session_name"
+                tmux new-session -t "$session_name" -e PROJECT_NAME="${name}"
+                ;;
+            new)
+                echo "new session on project $session_name"
+                declare -i current_session_count
+                current_session_count=$(cat $active_sessions)
+                echo $((current_session_count+=1)) > $active_sessions
+
+                session_name="${session_name}_${current_session_count}"
+                tmux new-session -d -s "${session_name}" -e PROJECT_NAME="${name}"
+                ;;
+            *) ;;
+        esac
+    else
+        echo "start new tmux session"
+        echo 1 > "$active_sessions"
+        #tmux send-keys -t "$session_name" "export PROJECT_NAME=${name}"
+        tmux new-session -d -s "$session_name" -e PROJECT_NAME="${name}"
+    fi
+
+    # if PROJECT_NAME is added to update-environment.
+    # On re-attach this triggers unexpected effect when PROJECT_NAME is changed, or set because of other terminal window.
+    # Existing panes will have the "old" value, while new panes/windows will inherit the new value.
+    #tmux set-option -t "$session_name" -g update-environment "DISPLAY TEST" # -g any effect?
+    #tmux set-option -t "$session_name" update-environment "DISPLAY SSH_AUTH_SOCK SSH_CONNECTION"
+    #
+    # Current (first) pane uses the "old" value, new panes and windows use the new value
+    #tmux set-environment -t "$session_name" PROJECT_NAME $name
+    #
+    # For now I'm using the `-e` option available since tmux 3.2.
+    # If environment values keep being a problem, switch to using a socket per project (tmux -L)
+    tmux attach -t "$session_name"
+}
+
+init-tmux-project $@
+
+
+# The problem with tmux is that when you first run it, the tmux server is created and it inherits
+# the environment that is available at this time of creation. This is called the global environment.
+# When you run tmux again and create a new session, the tmux server still holds its copy of the environment.
+# But this copy is the "old" environment that the server learned about when it was created, i.e. the global environment.
+#
+# About the tmux commands that work with the tmux environment:
+
+# * set update-environment MY_VAR:
+#   this will tell tmux to take the MY_VAR variable from the global environment and make it a session environment,
+#   i.e. a local environment (listed by the show-environment command).
+#   Then, the session will be able to change the value of this variable without affecting the global environment.
+# * set-environment MY_VAR value:
+#   This will create (or change) a variable in the local environment of the session.
+# * set-environment -g MY_VAR value:
+#   This will create (or change) a variable in the global environment.

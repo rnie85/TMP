@@ -1,0 +1,20 @@
+#!/bin/bash
+set -e
+
+echo "* Start docker container from image"
+echo
+
+DOCKER_USER="me"
+DOCKER_HOME="/home/me"
+docker run -ti \
+    --rm \
+    --hostname "projects_real" \
+    --env DOCKER="yes" \
+    --env USER="${DOCKER_USER}" \
+    --env HOME="${DOCKER_HOME}" \
+    --user "$(id -u)":"$(id -g)" \
+    --volume "$(pwd)"/rcfiles/.zshrc:/home/${DOCKER_USER}/.zshrc:ro \
+    --volume "$(pwd)"/rcfiles/.tmux.conf:/home/${DOCKER_USER}/.tmux.conf:ro \
+    --volume "${TMP_PROJECTS}":/home/${DOCKER_USER}/projects \
+    projects/debian_zsh \
+    zsh

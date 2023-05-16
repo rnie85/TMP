@@ -1,0 +1,21 @@
+#!/bin/bash
+set -e
+
+. ${TMP_PROJECTS}/.projects/lib/utils.sh
+
+delete-project()
+{
+    echo "Choose a project to delete:"
+    local project
+    project=$(__list_projects_name) || return $?
+    if [[ "${project}" == "${PROJECT_NAME}" ]]; then
+        __echo_err "ERROR: cannot delete an active project" && return 1
+    fi
+    echo
+    backup-project "${project}"
+    [[ $? != 0 ]] && __echo_err "ERROR: backup of project failed" && return 1
+    echo
+    rm -vrf "${TMP_PROJECTS}/${project}"
+}
+
+delete-project

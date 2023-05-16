@@ -1,0 +1,38 @@
+#!/bin/bash
+set -e
+
+echo "Setup before starting Docker"
+
+PROJECTS_PATH="/tmp/projects"
+
+echo "* Create a fake projects folder in ${PROJECTS_PATH}"
+
+if [ -d "${PROJECTS_PATH}" ]; then
+    echo "* Remove existing \"${PROJECTS_PATH}\""
+    rm -rf "${PROJECTS_PATH}"
+fi
+mkdir -p "${PROJECTS_PATH}"
+
+echo "* Copy projects files"
+cp -r "${TMP_PROJECTS}/.projects" "${PROJECTS_PATH}"
+cp "${TMP_PROJECTS}/.gitignore" "${PROJECTS_PATH}"
+cp "${TMP_PROJECTS}/source_me.sh" "${PROJECTS_PATH}"
+cp "${TMP_PROJECTS}/source_me.zsh" "${PROJECTS_PATH}"
+
+echo "* Start docker container from image"
+echo
+
+DOCKER_USER="me"
+DOCKER_HOME="/home/me"
+docker run -ti \
+    --rm \
+    --hostname "projects_fake" \
+    --env DOCKER="yes" \
+    --env USER="${DOCKER_USER}" \
+    --env HOME="${DOCKER_HOME}" \
+    --user "$(id -u)":"$(id -g)" \
+    --volume "$(pwd)"/rcfiles/.zshrc:/home/${DOCKER_USER}/.zshrc:ro \
+    --volume "$(pwd)"/rcfiles/.tmux.conf:/home/${DOCKER_USER}/.tmux.conf:ro \
+    --volume "${PROJECTS_PATH}":/home/${DOCKER_USER}/projects \
+    projects/debian_zsh \
+    zsh
