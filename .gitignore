@@ -2,6 +2,7 @@
 /*
 
 !.gitignore
+!.gitattributes
 !.projects/
 !.clang-format
 !README.md
