@@ -71,8 +71,10 @@ __tar()
         --exclude='.mypy_cache' \
         --exclude='Debug' \
         --exclude='Release' \
+        --exclude='debug' \
+        --exclude='release' \
         --exclude='__pycache__' \
-        --exclude='build' \
+        --exclude='**/build/*' # Exclude content of `build` folder, not `build` as a file \
         --exclude='coverage' \
         --exclude='cscope.*' \
         --exclude='doxygen' \
