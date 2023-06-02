@@ -62,6 +62,8 @@ __list_options()
 
 __tar()
 {
+    # Fix: Exclude content of `build` folder, not `build` as a file/command and folder.
+
     local archive="${1}"
     local folder="${2}"
     local name="${3}"
@@ -74,7 +76,7 @@ __tar()
         --exclude='debug' \
         --exclude='release' \
         --exclude='__pycache__' \
-        --exclude='**/build/*' # Exclude content of `build` folder, not `build` as a file \
+        --exclude='**/build/*' \
         --exclude='coverage' \
         --exclude='cscope.*' \
         --exclude='doxygen' \
