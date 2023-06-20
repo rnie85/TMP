@@ -1,0 +1,91 @@
+#!/bin/bash
+set -e
+
+. ${TMP_PROJECTS}/.projects/lib/utils.sh
+
+check_archive_has_one_item_in_root()
+{
+    echo "* Check archive has only one item in root"
+    local folder="$1"
+    local items=$(find "${folder}" -mindepth 1 -maxdepth 1 | wc -l)
+    if [[ items -lt 1 ]]; then
+        __echo_err "Error: archive contains no items there should only be one."
+        find "${folder}" -mindepth 1 -maxdepth 1
+        cleanup "${folder}"
+        return 1
+    fi
+    if [[ items -gt 1 ]]; then
+        __echo_err "Error: archive contains to many items in root, there should only be one."
+        find "${folder}" -mindepth 1 -maxdepth 1
+        cleanup "${folder}"
+        return 1
+    fi
+    return 0
+}
+
+check_only_item_is_folder()
+{
+    echo "* Check that the one item is a folder"
+    local folder="$1"
+    local item=$(find "${folder}" -mindepth 1 -maxdepth 1)
+    if [[ ! -d "${item}" ]]; then
+        __echo_err "Error: No folder found in archive"
+        cleanup "${folder}"
+        return 1
+    fi
+    return 0
+}
+
+check_project_exists()
+{
+    echo "* Check if project already exists"
+    local folder="$1"
+    local item=$(find "${folder}" -mindepth 1 -maxdepth 1)
+    item=$(basename $item)
+    if [[ -d "${TMP_PROJECTS}/${item}" ]]; then
+        __echo_err "Error: [${item}] project already exists"
+        cleanup "${folder}"
+        return 1
+    fi
+    return 0
+}
+
+cleanup()
+{
+    echo "* Cleanup"
+    local folder="$1"
+    if [[ "${folder}" == "" ]]; then
+        __echo_err "Error: folder is empty"
+        cleanup "${folder}"
+        return 1
+    fi
+    rm -rf "${folder}"
+}
+
+import-project()
+{
+    echo -e "Import project\n"
+    local archive="$1"
+    local tmp_destination="/tmp/project_archive"
+    mkdir -p ${tmp_destination}
+
+    if [[ -z ${archive} ]]; then
+        __echo_err "Error: no archive given!"
+        return 1
+    fi
+
+    echo "* Unpack archive ${archive}"
+    tar -xzvkf ${archive} -C ${tmp_destination} # -k  Warns on file/folder already exists
+    #tar -xzvf ${archive} -C ${tmp_destination} # overwrites without warning
+    echo ""
+
+    check_archive_has_one_item_in_root "${tmp_destination}"
+    check_only_item_is_folder "${tmp_destination}"
+    check_project_exists "${tmp_destination}"
+    echo "* Move project"
+    mv ${tmp_destination}/* "${TMP_PROJECTS}"
+
+    cleanup "${tmp_destination}"
+}
+
+import-project $@
