@@ -17,7 +17,7 @@ init-tmux-project()
     local session_name="${name}"
     echo "---------- $session_name ----------"
 
-    local session_running="$(tmux list-sessions | grep $session_name)"
+    local session_running="$(tmux list-sessions | grep -w $session_name)"
     local active_sessions="/tmp/active_sessions_${name}"
     if [[ "$session_running" != "" ]]; then
         echo "Session already exists"
