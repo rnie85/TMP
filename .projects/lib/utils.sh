@@ -70,6 +70,7 @@ __tar()
     tar -zcvf "${archive}" \
         -C "${folder}" \
         --exclude='.ccache' \
+        --exclude='.venv' \
         --exclude='.mypy_cache' \
         --exclude='Debug' \
         --exclude='Release' \
