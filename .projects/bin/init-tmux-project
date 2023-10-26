@@ -14,6 +14,10 @@ init-tmux-project()
         __echo_err "ERROR: invalid project \"${TMP_PROJECTS}/${name}\"" && return 1
     fi
 
+    if [[ ! -e "${TMP_PROJECTS}/${name}/envrc" ]]; then
+        __echo_err "ERROR: invalid project, envrc missing!" && return 1
+    fi
+
     local session_name="${name}"
     echo "---------- $session_name ----------"
 
@@ -25,15 +29,13 @@ init-tmux-project()
         select choice in attach share new; do break; done
         case "${choice}" in
             attach)
-	        # Change to only list tmux sessions (if there are any) with "${session_name}_${current_session_count}" NOT ALL running sessions
-                #local session_name=$(__list_tmux_sessions)
-                #[[ "${session_name}" == "quit" ]] && return 0
+                local session_name=$(__list_tmux_sessions_filter $session_name)
+                [[ "${session_name}" == "" ]] && return 0
                 echo "attaching to $session_name"
                 ;;
             share)
-	        # Change to only list tmux sessions (if there are any) with "${session_name}_${current_session_count}" NOT ALL running sessions
-                #local session_name=$(__list_tmux_sessions)
-                #[[ "${session_name}" == "quit" ]] && return 0
+                local session_name=$(__list_tmux_sessions_filter $session_name)
+                [[ "${session_name}" == "" ]] && return 0
                 echo "sharing $session_name"
                 tmux new-session -t "$session_name" -e PROJECT_NAME="${name}"
                 ;;

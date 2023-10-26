@@ -34,12 +34,17 @@ init-project()
         echo "* Initializing environment"
         echo
         cd "${project}"
-        source "envrc"
-        cd - > /dev/null
-        if [[ "${skip_ps1_change}" != true ]]; then
-            if [[ ! "${PS1}" = *"[${name}]"* ]]; then
-                PS1="[${name}] $PS1"
+        if [[ -e "envrc" ]]; then
+            source "envrc"
+            cd - > /dev/null
+            if [[ "${skip_ps1_change}" != true ]]; then
+                if [[ ! "${PS1}" = *"[${name}]"* ]]; then
+                    PS1="[${name}] $PS1"
+                fi
             fi
+        else
+            __echo_err "envrc file missing!"
+            exit 1
         fi
     else
         __echo_err "Something wong!"

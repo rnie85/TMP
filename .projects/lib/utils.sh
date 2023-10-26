@@ -98,3 +98,18 @@ __list_tmux_sessions()
     return 0
 }
 
+__list_tmux_sessions_filter()
+{
+    local filter="${1}"
+    local sessions
+    #IFS=$'\n' read -d '' -ra sessions < <(tmux list-sessions -F '#S' | grep "${filter}")
+    readarray -t sessions< <(tmux list-sessions -F '#S' | grep "${filter}")
+    #mapfile -t sessions < <(tmux list-sessions -F '#S' | grep "${filter}")
+    PS3="Pick a number (q to quit)# "
+    select session in "${sessions[@]}"; do break; done
+    [[ "${REPLY}" == "q" ]] && __echo_warn "Quit" && return 1
+    [[ "${session}" == "" ]] && __echo_err "ERROR: No valid option selected!" && return 2
+    echo "$session"
+    return 0
+}
+
