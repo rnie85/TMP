@@ -17,7 +17,7 @@ create-project()
 
     echo "Creating project ${project_name}"
 
-    local folders=("code" "notes" "doc" ".env")
+    local folders=("code" "notes" "doc" ".env" ".env/bin" ".env/lib")
     for folder in ${folders[@]}; do
         echo "* create folder: ${folder}"
         mkdir -p "${project_path}/${folder}"

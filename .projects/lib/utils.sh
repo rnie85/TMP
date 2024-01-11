@@ -70,6 +70,7 @@ __tar()
     tar -zcvf "${archive}" \
         -C "${folder}" \
         --exclude='.ccache' \
+        --exclude='.cache' \
         --exclude='.venv' \
         --exclude='.mypy_cache' \
         --exclude='Debug' \
@@ -78,11 +79,25 @@ __tar()
         --exclude='release' \
         --exclude='__pycache__' \
         --exclude='**/build/*' \
+        --exclude='**/build_nonDocker/*' \
+        --exclude='**/build_test_nonDocker/*' \
+        --exclude='**/ci_debug_build/*' \
+        --exclude='**/ci_debug_build_docker/*' \
+        --exclude='**/ci_release_build/*' \
+        --exclude='**/ci_release_build_docker/*' \
+        --exclude='**/ci_test_build_address/*' \
+        --exclude='**/ci_test_build_undefined/*' \
+        --exclude='**/ci_test_build_undefined_docker/*' \
+        --exclude='**/ci_test_build_address_docker/*' \
         --exclude='coverage' \
+        --exclude='coverage_html' \
         --exclude='cscope.*' \
         --exclude='doxygen' \
         --exclude='external' \
         --exclude='tags' \
+        --exclude='*.srctrlbm' \
+        --exclude='*.srctrldb' \
+        --exclude='*.srctrlprj' \
         "${name}"
 }
 

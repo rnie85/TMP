@@ -4,7 +4,7 @@
 
 echo "* loading aliases"
 
-alias reloadp="source $PROJECT_PATH/envrc"
+alias reload_project="cd $PROJECT_PATH && source ./envrc && cd - > /dev/null"
 
 # make a general function for any of the mentioned actions to:
 # (make build a function? with pre-setup)
@@ -22,7 +22,7 @@ alias update="echo update command not set"
 # auto generare picture of code structure
 
 alias cdp="cd $PROJECT_PATH"
-alias cdpp="cd $PROJECT_PATH"
+alias cdpp="cd $PROJECT_PATH/code"
 alias cdc="cd $PROJECT_PATH/code"
 alias cdd="cd $PROJECT_PATH/doc"
 alias cdn="cd $PROJECT_PATH/notes"

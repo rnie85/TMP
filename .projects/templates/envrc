@@ -14,6 +14,7 @@ fi
 
 export PROJECT_PATH=${PWD}
 export PROJECT_NAME=${PWD##*/}
+export PROJECT_CODE="Set PROJECT_CODE in $PROJECT_PATH/envrc"
 
 . .env/main.sh
 

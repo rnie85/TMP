@@ -1,9 +1,10 @@
 #!/bin/bash
 set -e
 
-sessions=($(tmux list-sessions -F '#S'))
+#sessions=($(tmux list-sessions -F '#S'))
+mapfile -t sessions < <(tmux list-sessions -F '#S')
 PS3="Pick a number (q to quit)# "
-select session in $sessions; do break; done
+select session in "${sessions[@]}"; do break; done
 [[ "${REPLY}" == "q" ]] && echo "Quit" >&2 && exit 0
 [[ "${session}" == "" ]] && echo "ERROR: No valid option selected!" >&2 && exit 1
 echo "$session"
